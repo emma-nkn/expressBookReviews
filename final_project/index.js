@@ -15,6 +15,7 @@ app.use(
     secret: "fingerprint_customer",
     resave: true,
     saveUninitialized: true,
+    cookie: { secure: false } // Assurez-vous de définir secure: true en production si vous utilisez HTTPS
   })
 );
 
@@ -35,16 +36,8 @@ app.use("/customer/auth/*", function auth(req, res, next) {
   }
 });
 
-const PORT = 5000;
-
-app.use("/customer", customer_routes);
-app.use("/", genl_routes);
-
-app.listen(PORT, () => console.log("Server is running"));
-
-const jwt = require('jsonwebtoken');
-
-function login(req, res) {
+// Route de connexion pour générer un token
+app.post("/login", (req, res) => {
   const user = req.body.username;
 
   // Exemple : Vérification basique de l'utilisateur
@@ -55,6 +48,11 @@ function login(req, res) {
   } else {
     return res.status(400).json({ message: "Nom d'utilisateur requis" });
   }
-}
+});
 
-module.exports = { login };
+const PORT = 5000;
+
+app.use("/customer", customer_routes);  // Routes pour les utilisateurs
+app.use("/", genl_routes);  // Routes générales
+
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
